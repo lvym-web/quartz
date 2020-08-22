@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+       <!--1.创建job-->
+    <bean name="jobDetailFactoryBean" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="name" value="nameJob"></property>
+        <property name="group" value="groupJob"></property>
+         <!--引入定义任务所在类-->
+        <property name="jobClass" value="com.lvym.quartz.Myjob"></property>
+        <!--是否删除不活动的触发器-->
+        <property name="durability" value="true"></property>
+        <property name="applicationContextJobDataKey" value="spring工厂对象"></property>
+    </bean>
+    <!--2.创建触发器-->
+    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="name" value="nameTrigger"></property>
+        <property name="group" value="groupTrigger"></property>
+        <!--引入job-->
+        <property name="jobDetail" ref="jobDetailFactoryBean"></property>
+        <property name="cronExpression" value="*/2 * * * * ?"></property>
+    </bean>
+       <!--创建调度器-->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <!--引入触发器-->
+                <ref bean="cronTrigger"></ref>
+            </list>
+        </property>
+        <!--引入配置文件-->
+        <!--<property name="configLocation" value="classpath:**.properties"></property>-->
+        <property name="quartzProperties">
+            <value>
+                #指定调度器名称，可以自己命名
+                org.quartz.scheduler.instanceName = MyScheduler
+                #指定线程池实现类
+                org.quartz.threadPool.class= org.quartz.simpl.SimpleThreadPool
+                #线程池数量
+                org.quartz.threadPool.threadCount= 11
+                #优先级  默认5
+                org.quartz.threadPool.threadPriority= 5
+                #非持久化
+                org.quartz.jobStore.class= org.quartz.simpl.RAMJobStore
+            </value>
+        </property>
+    </bean>
+
+</beans>
